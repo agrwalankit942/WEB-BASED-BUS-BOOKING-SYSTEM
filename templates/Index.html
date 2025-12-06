@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg fade-in-card">
+        <div class="card shadow-lg booking-card fade-in-card">
+
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0 text-center">Search Buses</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" onsubmit="return validateSearchForm();">
+                    <div class="mb-3">
+                        <label class="form-label">Source</label>
+                        <input type="text" class="form-control" name="source" id="source"
+                               placeholder="e.g. Delhi" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Destination</label>
+                        <input type="text" class="form-control" name="destination" id="destination"
+                               placeholder="e.g. Jaipur" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Journey Date</label>
+                        <input type="date" class="form-control" name="journey_date" id="journey_date"
+                               required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        Search Buses
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<script>
+    function validateSearchForm() {
+        const source = document.getElementById('source').value.trim();
+        const destination = document.getElementById('destination').value.trim();
+        const journeyDate = document.getElementById('journey_date').value;
+
+        if (source.toLowerCase() === destination.toLowerCase()) {
+            alert('Source and Destination cannot be the same.');
+            return false;
+        }
+
+        const today = new Date();
+        const selectedDate = new Date(journeyDate);
+        today.setHours(0, 0, 0, 0); // Set to midnight for accurate comparison
+
+        if (selectedDate < today) {
+            alert('Journey date cannot be in the past.');
+            return false;
+        }
+
+        return true;
+    }
+</script>

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">Booking Confirmation</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Booking ID:</strong> {{ booking.id }}</p>
+                <p><strong>Passenger:</strong> {{ booking.passenger_name }}</p>
+                <p><strong>Email:</strong> {{ booking.passenger_email }}</p>
+                <hr>
+                <p><strong>Bus:</strong> {{ booking.bus_name }}</p>
+                <p><strong>Route:</strong> {{ booking.source }} → {{ booking.destination }}</p>
+                <p><strong>Departure:</strong> {{ booking.departure_time }}</p>
+                <p><strong>Arrival:</strong> {{ booking.arrival_time }}</p>
+                <p><strong>Journey Date:</strong> {{ booking.journey_date }}</p>
+                <p><strong>Seats:</strong> {{ booking.seats_booked }}</p>
+                <p><strong>Fare per seat:</strong> ₹{{ "%.2f"|format(booking.fare) }}</p>
+                <p><strong>Total Fare:</strong>
+                    ₹{{ "%.2f"|format(booking.fare * booking.seats_booked) }}
+                </p>
+                <hr>
+                <p><strong>Booking Time:</strong> {{ booking.booking_time }}</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">Book Another Ticket</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

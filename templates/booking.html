@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card shadow-lg booking-card">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Book: {{ bus.bus_name }}</h4>
+                <span class="badge bg-light text-success">
+                    Fare per seat: ₹{{ "%.2f"|format(bus.fare) }}
+                </span>
+            </div>
+
+            <div class="card-body">
+                <!-- Route Info -->
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <p class="mb-1"><strong>Route:</strong> {{ bus.source }} → {{ bus.destination }}</p>
+                        <p class="mb-1">
+                            <strong>Departure:</strong> {{ bus.departure_time }} |
+                            <strong>Arrival:</strong> {{ bus.arrival_time }}
+                        </p>
+                        <p class="mb-1"><strong>Journey Date:</strong> {{ journey_date }}</p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <p class="mb-1">
+                            <strong>Available Seats:</strong>
+                            <span class="badge bg-primary">{{ available_seats }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <hr>
+
+                <form method="POST" 
+                      oninput="updateTotalFare({{ bus.fare }});" 
+                      onsubmit="return validateBookingForm();">
+
+                    <!-- Passenger Details -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Passenger Name</label>
+                            <input type="text" class="form-control" name="passenger_name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Passenger Email</label>
+                            <input type="email" class="form-control" name="passenger_email" required>
+                        </div>
+                    </div>
+
+                    <!-- Seats + Fare -->
+                    <div class="row align-items-end">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">No. of Seats</label>
+                            <input type="number"
+                                   class="form-control"
+                                   name="seats_booked"
+                                   id="seats_booked"
+                                   min="1"
+                                   max="{{ available_seats }}"
+                                   value="1"
+                                   required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Fare per Seat</label>
+                            <input type="text"
+                                   class="form-control"
+                                   value="₹{{ '%.2f'|format(bus.fare) }}"
+                                   readonly>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Total Fare</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="total_fare"
+                                   readonly
+                                   value="₹{{ '%.2f'|format(bus.fare) }}">
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Payment Section -->
+                    <h5 class="mb-3">Payment Options</h5>
+                    <div class="row g-3 mb-3 payment-options">
+                        <div class="col-md-4">
+                            <label class="payment-option-card" id="option_upi">
+                                <input type="radio" name="payment_method" value="upi" required>
+                                <div class="icon">📱</div>
+                                <div class="title">UPI</div>
+                                <div class="subtitle">GPay / PhonePe / Paytm</div>
+                            </label>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="payment-option-card" id="option_card">
+                                <input type="radio" name="payment_method" value="card">
+                                <div class="icon">💳</div>
+                                <div class="title">Debit / Credit Card</div>
+                                <div class="subtitle">Visa / MasterCard / RuPay</div>
+                            </label>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="payment-option-card" id="option_netbank">
+                                <input type="radio" name="payment_method" value="netbank">
+                                <div class="icon">🏦</div>
+                                <div class="title">Net Banking</div>
+                                <div class="subtitle">All Major Banks</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Payment Details -->
+                    <div class="payment-details">
+                        <div id="upi_section" class="payment-detail d-none">
+                            <label class="form-label">UPI ID</label>
+                            <input type="text" class="form-control" placeholder="yourname@upi">
+                            <small class="text-muted">We will simulate payment for project purpose.</small>
+                        </div>
+
+                        <div id="card_section" class="payment-detail d-none">
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label class="form-label">Card Number</label>
+                                    <input type="text" class="form-control" maxlength="19"
+                                           placeholder="XXXX-XXXX-XXXX-XXXX">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Expiry</label>
+                                    <input type="text" class="form-control" placeholder="MM/YY">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">CVV</label>
+                                    <input type="password" class="form-control" maxlength="3">
+                                </div>
+                            </div>
+                            <small class="text-muted">Demo only – no real transaction.</small>
+                        </div>
+
+                        <div id="netbank_section" class="payment-detail d-none">
+                            <label class="form-label">Select Bank</label>
+                            <select class="form-select">
+                                <option selected disabled>Choose your bank</option>
+                                <option>SBI</option>
+                                <option>HDFC Bank</option>
+                                <option>ICICI Bank</option>
+                                <option>Axis Bank</option>
+                                <option>PNB</option>
+                            </select>
+                            <small class="text-muted">You will be redirected to bank page (simulated).</small>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Confirm Button -->
+                    <button type="submit"
+                            class="btn btn-success w-100 btn-lg booking-submit-btn"
+                            {% if available_seats <= 0 %}disabled{% endif %}>
+                        Pay & Confirm Booking
+                    </button>
+                    {% if available_seats <= 0 %}
+                        <p class="text-danger mt-2 text-center mb-0">No seats available on this bus.</p>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<script>
+    function updateTotalFare(farePerSeat) {
+        const seatsBooked = document.getElementById('seats_booked').value;
+        const totalFare = farePerSeat * seatsBooked;
+        document.getElementById('total_fare').value = '₹' + totalFare.toFixed(2);
+    }
+
+    function validateBookingForm() {
+        const seatsBooked = parseInt(document.getElementById('seats_booked').value);
+        const availableSeats = {{ available_seats }};
+        if (seatsBooked > availableSeats) {
+            alert('Number of seats booked exceeds available seats.');
+            return false;
+        }
+        return true;
+    }
+    document.querySelectorAll('input[name="payment_method"]').forEach((elem) => {
+        elem.addEventListener('change', function(event) {
+            document.querySelectorAll('.payment-detail').forEach((section) => {
+                section.classList.add('d-none');
+            });
+            if (event.target.value === 'upi') {
+                document.getElementById('upi_section').classList.remove('d-none');
+            } else if (event.target.value === 'card') {
+                document.getElementById('card_section').classList.remove('d-none');
+            } else if (event.target.value === 'netbank') {
+                document.getElementById('netbank_section').classList.remove('d-none');
+            }
+        });
+    });
+</script>
